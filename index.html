@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game Hub</title>
+
+  <!-- Styles -->
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+      text-align: center;
+    }
+    h1 {
+      background: #333;
+      color: white;
+      padding: 15px;
+      margin: 0;
+    }
+    .sidebar {
+      width: 250px;
+      height: 100%;
+      position: fixed;
+      left: -250px;
+      top: 0;
+      background: #222;
+      color: white;
+      transition: 0.3s;
+      padding-top: 60px;
+    }
+    .sidebar a {
+      display: block;
+      padding: 12px;
+      text-decoration: none;
+      color: white;
+      transition: 0.2s;
+    }
+    .sidebar a:hover {
+      background: #444;
+    }
+    .sidebar-btn {
+      position: absolute;
+      left: 10px;
+      top: 10px;
+      background: #007BFF;
+      color: white;
+      border: none;
+      padding: 10px;
+      cursor: pointer;
+    }
+    .open-sidebar {
+      left: 0 !important;
+    }
+    .tab-container {
+      margin-top: 10px;
+    }
+    .tab-button {
+      background: #007BFF;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      margin: 5px;
+    }
+    .tab-button.active {
+      background: #0056b3;
+    }
+    .game-grid {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+        padding: 20px;
+    }
+
+    .game-card {
+      background: white;
+      padding: 15px;
+      text-align: center;
+      border-radius: 8px;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+    }
+    .game-card img {
+      width: 120px;
+      height: 80px;
+      border-radius: 5px;
+    }
+    .hidden {
+      display: none;
+    }
+    .settings {
+      padding: 20px;
+      color: white;
+    }
+    .settings input {
+      width: 80%;
+      padding: 8px;
+      margin: 5px 0;
+    }
+    .save-btn {
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 10px;
+      cursor: pointer;
+      margin-top: 10px;
+      width: 80%;
+    }
+    /* Modal Styling */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      width: 300px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Login Modal -->
+  <div id="loginModal" class="modal">
+    <div class="modal-content">
+      <h2>Welcome! Enter Your Name</h2>
+      <input type="text" id="studentName" placeholder="Enter your name">
+      <button onclick="loginStudent()">Login</button>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <div id="sidebar" class="sidebar">
+    <a href="#" onclick="showTab('games')">🎮 Games</a>
+    <a href="#" onclick="showTab('entertainment')">📺 Entertainment</a>
+    <a href="#" onclick="showTab('settings')">⚙️ Settings</a>
+  </div>
+
+  <button class="sidebar-btn" onclick="toggleSidebar()">☰ Menu</button>
+
+  <h1>Game Hub</h1>
+
+  <!-- Tab Buttons -->
+  <div class="tab-container">
+    <button class="tab-button active" onclick="showTab('games')">Games</button>
+    <button class="tab-button" onclick="showTab('entertainment')">Entertainment</button>
+  </div>
+
+  <!-- Main Content -->
+  <div id="mainContent" style="display: none;">
+    <!-- Games Section -->
+    <div id="games" class="tab-content">
+      <div class="game-grid">
+        <div class="game-card" onclick="requestPlaytime('Game 1')">
+          <img src="placeholder.png" alt="Game 1">
+          <p>Game 1</p>
+        </div>
+        <div class="game-card" onclick="requestPlaytime('Game 2')">
+          <img src="placeholder.png" alt="Game 2">
+          <p>Game 2</p>
+        </div>
+        <div class="game-card" onclick="requestPlaytime('Game 2')">
+            <img src="placeholder.png" alt="Game 2">
+            <p>Game 2</p>
+        </div>
+        <div class="game-card" onclick="requestPlaytime('Game 2')">
+            <img src="placeholder.png" alt="Game 2">
+            <p>Game 2</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Entertainment Section -->
+    <div id="entertainment" class="tab-content hidden">
+      <h2>Entertainment</h2>
+      <p>Videos, music, and more coming soon!</p>
+    </div>
+
+    <!-- Settings Section -->
+    <div id="settings" class="tab-content hidden">
+      <div class="settings">
+        <h2>Settings</h2>
+        <button class="save-btn">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Function to set a cookie
+    function setCookie(name, value, days) {
+      const d = new Date();
+      d.setTime(d.getTime() + (days*24*60*60*1000));
+      const expires = "expires=" + d.toUTCString();
+      document.cookie = name + "=" + value + ";" + expires + ";path=/";
+    }
+
+    // Function to get a cookie
+    function getCookie(name) {
+      const cookieArr = document.cookie.split("; ");
+      for (let i = 0; i < cookieArr.length; i++) {
+        const cookiePair = cookieArr[i].split("=");
+        if (name === cookiePair[0]) {
+          return decodeURIComponent(cookiePair[1]);
+        }
+      }
+      return null;
+    }
+
+    // Function to check login status
+    function checkLogin() {
+      const studentName = getCookie("studentName");
+      if (studentName) {
+        document.getElementById("loginModal").style.display = "none";
+        document.getElementById("mainContent").style.display = "block";
+      } else {
+        document.getElementById("loginModal").style.display = "flex";
+      }
+    }
+
+    // Login function
+    function loginStudent() {
+      const name = document.getElementById("studentName").value;
+      if (name.trim() === "") {
+        alert("Please enter your name!");
+        return;
+      }
+      // Set cookie for 7 days
+      setCookie("studentName", name, 7);
+      // Hide modal and show content
+      document.getElementById("loginModal").style.display = "none";
+      document.getElementById("mainContent").style.display = "block";
+    }
+
+    // Sidebar toggle
+    function toggleSidebar() {
+      document.getElementById("sidebar").classList.toggle("open-sidebar");
+    }
+
+    // Show a tab based on user selection
+    function showTab(tabName) {
+      document.querySelectorAll(".tab-content").forEach(tab => tab.classList.add("hidden"));
+      document.getElementById(tabName).classList.remove("hidden");
+    }
+
+    // Check if the user is logged in when the page loads
+    window.onload = checkLogin;
+  </script>
+
+</body>
+</html>
